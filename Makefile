@@ -8,21 +8,6 @@ build-n0core:
 	GOOS=${GOOS} GOARCH=${GOARCH} go build -o bin/n0core -ldflags "-X main.version=$(VERSION)" -v .
 
 # -- Maintenance ---
-.PHONY: vendor
-vendor:
-	go mod vendor
-
-.PHONY: vendor-on-docker
-vendor-on-docker:
-	docker run -it --rm \
-		-v $(PWD)/.go-build:/root/.cache/go-build/ \
-		-v $(PWD):/go/src/github.com/h-otter/ictsc-n0stack \
-		-w /go/src/github.com/h-otter/ictsc-n0stack \
-		-e GO111MODULE=on \
-		n0stack/build-go \
-			make vendor
-	sudo chown -R $(USER) vendor
-
 .PHONY: clean
 clean:
 	# go clean
@@ -35,7 +20,10 @@ clean:
 logs:
 	docker-compose logs -f api
 
-update-n0stack:
-	mkdir -p vendor/github.com/n0stack
-	cp -r ../../n0stack/n0stack vendor/github.com/n0stack
-	rm -rf vendor/github.com/n0stack/n0stack/vendor
+.PHONY: vendor
+vendor:
+	rm -rf ./vendor
+	cp -r ../../n0stack/n0stack/vendor ./vendor
+	mkdir -p vendor/github.com/n0stack/n0stack
+	cp -r ../../n0stack/n0stack/n0core vendor/github.com/n0stack/n0stack/n0core
+	cp -r ../../n0stack/n0stack/n0proto.go vendor/github.com/n0stack/n0stack/n0proto.go
