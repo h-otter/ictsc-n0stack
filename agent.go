@@ -128,7 +128,7 @@ func ServeAgent(ctx *cli.Context) error {
 	unit := uint32(u)
 
 	bvm := filepath.Join(baseDirectory, "virtual_machine")
-	vma, err := agent.CreateVirtualMachineAgent(bvm, vlanInterface)
+	vma, err := agent.CreateVirtualMachineAgent(bvm, vlanInterface, nodeAPI)
 	if err != nil {
 		return err
 	}

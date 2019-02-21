@@ -36,9 +36,10 @@ type VirtualMachineICTSCAgent struct {
 	*virtualmachine.VirtualMachineAgent
 
 	externalInterface *iproute2.Interface
+	apiEndpoint       string
 }
 
-func CreateVirtualMachineAgent(basedir, exInterface string) (*VirtualMachineICTSCAgent, error) {
+func CreateVirtualMachineAgent(basedir, exInterface, apiEndpoint string) (*VirtualMachineICTSCAgent, error) {
 	vm, err := virtualmachine.CreateVirtualMachineAgent(basedir)
 	if err != nil {
 		return nil, err
@@ -52,6 +53,7 @@ func CreateVirtualMachineAgent(basedir, exInterface string) (*VirtualMachineICTS
 	return &VirtualMachineICTSCAgent{
 		VirtualMachineAgent: vm,
 		externalInterface:   i,
+		apiEndpoint:         apiEndpoint,
 	}, nil
 }
 
@@ -82,8 +84,8 @@ func SetPrefix(name string) string {
 	return fmt.Sprintf("n0stack/%s", name)
 }
 
-func GetVlanID(networkName string) (int, error) {
-	endpoint := "172.16.1.35:20180" // HARDCODE!!!
+func (a VirtualMachineICTSCAgent) GetVlanID(networkName string) (int, error) {
+	endpoint := a.apiEndpoint
 	conn, err := grpc.Dial(endpoint, grpc.WithInsecure())
 	if err != nil {
 		return 0, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to connect network api: err='%s'", err.Error())
@@ -145,7 +147,7 @@ func (a VirtualMachineICTSCAgent) BootVirtualMachine(ctx context.Context, req *v
 				return nil, grpcutil.WrapGrpcErrorf(codes.Internal, "Failed to create bridge '%s': err='%s'", nd.NetworkName, err.Error())
 			}
 
-			vlanId, err := GetVlanID(nd.NetworkName)
+			vlanId, err := a.GetVlanID(nd.NetworkName)
 			if err != nil {
 				return nil, err
 			}
@@ -369,7 +371,7 @@ func (a VirtualMachineICTSCAgent) DeleteVirtualMachine(ctx context.Context, req 
 			}
 		}
 		if i == 0 {
-			vlanId, err := GetVlanID(nd.NetworkName)
+			vlanId, err := a.GetVlanID(nd.NetworkName)
 			if err != nil {
 				return nil, err
 			}
