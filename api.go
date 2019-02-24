@@ -7,22 +7,23 @@ import (
 	"net/http"
 	"strings"
 
+	ictscnetwork "github.com/h-otter/ictsc-n0stack/network"
+
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/flavor"
 	"github.com/n0stack/n0stack/n0core/pkg/api/deployment/image"
-	"github.com/n0stack/n0stack/n0core/pkg/api/pool/network"
 	"github.com/n0stack/n0stack/n0core/pkg/api/pool/node"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/blockstorage"
 	"github.com/n0stack/n0stack/n0core/pkg/api/provisioning/virtualmachine"
 	"github.com/n0stack/n0stack/n0core/pkg/datastore/etcd"
-	"github.com/n0stack/n0stack/n0proto.go/deployment/v0"
-	"github.com/n0stack/n0stack/n0proto.go/pool/v0"
-	"github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
+	pdeployment "github.com/n0stack/n0stack/n0proto.go/deployment/v0"
+	ppool "github.com/n0stack/n0stack/n0proto.go/pool/v0"
+	pprovisioning "github.com/n0stack/n0stack/n0proto.go/provisioning/v0"
 
 	"github.com/rakyll/statik/fs"
 
-	"github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	// "github.com/grpc-ecosystem/go-grpc-middleware/logging/zap"
-	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 
@@ -62,7 +63,7 @@ func ServeAPI(ctx *cli.Context) error {
 		return err
 	}
 	defer neds.Close()
-	nea := network.CreateNetworkAPI(neds)
+	nea := ictscnetwork.CreateNetworkAPI(neds)
 	nec := ppool.NewNetworkServiceClient(conn)
 
 	bsds, err := etcd.NewEtcdDatastore(etcdEndpoints)
