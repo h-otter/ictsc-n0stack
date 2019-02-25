@@ -1,7 +1,7 @@
 GOOS=linux
 GOARCH=amd64
 GOCMD=go
-VERSION=$(shell cat VERSION)
+VERSION=$(shell echo ICTSC-`cat vendor/github.com/n0stack/n0stack/VERSION`)
 
 # --- Build ---
 build-n0core:
@@ -25,5 +25,6 @@ vendor:
 	rm -rf ./vendor
 	cp -r ../../n0stack/n0stack/vendor ./vendor
 	mkdir -p vendor/github.com/n0stack/n0stack
+	cp -r ../../n0stack/n0stack/VERSION vendor/github.com/n0stack/n0stack/
 	cp -r ../../n0stack/n0stack/n0core vendor/github.com/n0stack/n0stack/n0core
 	cp -r ../../n0stack/n0stack/n0proto.go vendor/github.com/n0stack/n0stack/n0proto.go
