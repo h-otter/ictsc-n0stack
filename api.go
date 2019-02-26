@@ -32,6 +32,8 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/urfave/cli"
+
+	"net/http/pprof"
 )
 
 func ServeAPI(ctx *cli.Context) error {
@@ -135,6 +137,13 @@ func ServeAPI(ctx *cli.Context) error {
 	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
 	e.GET("/api/v0/block_storage/download/:name", bsa.ProxyDownloadBlockStorage(8081, "/api/v0/block_storage/download/:name")) // ダウンロードしたときのファイル名を指定するため、このように指定した
 	e.GET("/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
+
+	pprofGroup := e.Group("/debug/pprof")
+	pprofGroup.Any("/cmdline", echo.WrapHandler(http.HandlerFunc(pprof.Cmdline)))
+	pprofGroup.Any("/profile", echo.WrapHandler(http.HandlerFunc(pprof.Profile)))
+	pprofGroup.Any("/symbol", echo.WrapHandler(http.HandlerFunc(pprof.Symbol)))
+	pprofGroup.Any("/trace", echo.WrapHandler(http.HandlerFunc(pprof.Trace)))
+	pprofGroup.Any("/*", echo.WrapHandler(http.HandlerFunc(pprof.Index)))
 
 	log.Printf("[INFO] Started API: version=%s", version)
 	// 本当は panic させる必要がある
