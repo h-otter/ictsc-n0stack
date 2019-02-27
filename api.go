@@ -135,7 +135,7 @@ func ServeAPI(ctx *cli.Context) error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.GET("/api/v0/virtual_machines/:name/vncwebsocket", vma.ProxyWebsocket())
-	e.GET("/api/v0/block_storage/download/:name", bsa.ProxyDownloadBlockStorage(8081, "/api/v0/block_storage/download/:name")) // ダウンロードしたときのファイル名を指定するため、このように指定した
+	e.GET("/api/v0/block_storage/download/:name", bsa.ProxyDownloadBlockStorage(8081, "/api/v0/block_storage/download/")) // ダウンロードしたときのファイル名を指定するため、このように指定した
 	e.GET("/static/virtual_machines/*", echo.WrapHandler(http.StripPrefix("/static/virtual_machines/", http.FileServer(statikFs))))
 
 	pprofGroup := e.Group("/debug/pprof")
